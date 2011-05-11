@@ -9,8 +9,9 @@ class AsciiDataRow
     end
   end
 
-  def self.field(name, range, type)
-    fields_definitions[name] = FieldDefinition.new(type, range)
+  def self.field(name, range, type, options={})
+    options[:format] ||= '%d/%m/%Y'
+    fields_definitions[name] = FieldDefinition.new(type, range, options)
   end
 
   def self.create_from(ascii_row)
@@ -43,7 +44,7 @@ class AsciiDataRow
 
     if definition.type == :date
       return nil if text_value.empty?
-      return Date.strptime(text_value, '%d/%m/%Y').to_time.utc
+      return Date.strptime(text_value, definition.options[:format]).to_time.utc
     end
 
     if definition.type == :bool
@@ -53,10 +54,11 @@ class AsciiDataRow
 end
 
 class FieldDefinition
-  attr_reader :type, :range
+  attr_reader :type, :range, :options
 
-  def initialize(type, range)
+  def initialize(type, range, options)
     @type = type
     @range = Range.new(range.min-1, range.max-1)
+    @options = options
   end
 end

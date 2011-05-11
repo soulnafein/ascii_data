@@ -76,5 +76,15 @@ describe AsciiDataRow do
 
       row.fields[:date_1].should == Time.utc(2012, 3, 12)
     end
+
+    it "should accept different date formats" do
+      class RowF < AsciiDataRow
+        field :date_1, 3..12, :date, :format => '%Y/%m/%d'
+      end
+
+      row = RowF.create_from("  2012/03/12")
+
+      row.fields[:date_1].should == Time.utc(2012, 3, 12)
+    end
   end
 end
