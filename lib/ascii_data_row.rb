@@ -1,3 +1,5 @@
+require 'date'
+
 class AsciiDataRow
   class << self
     attr_reader :fields_definitions
@@ -39,10 +41,14 @@ class AsciiDataRow
       return text_value.to_f
     end
 
+    if definition.type == :date
+      return nil if text_value.empty?
+      return Date.strptime(text_value, '%d/%m/%Y').to_time.utc
+    end
+
     if definition.type == :bool
       return text_value == '1'
     end
-
   end
 end
 

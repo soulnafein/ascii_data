@@ -67,12 +67,14 @@ describe AsciiDataRow do
       row.fields[:flag_2].should be_false
     end
 
-    it "should fucking work" do
-      class B < AsciiDataRow
-        field :field_1, 4..4, :int
+    it "should parse dates correctly" do
+      class RowF < AsciiDataRow
+        field :date_1, 3..12, :date
       end
 
-      puts B.fields_definitions
+      row = RowF.create_from("  12/03/2012")
+
+      row.fields[:date_1].should == Time.utc(2012, 3, 12)
     end
   end
 end
