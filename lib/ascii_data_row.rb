@@ -1,4 +1,4 @@
-require 'date'
+require 'time'
 
 class AsciiDataRow
   class << self
@@ -21,7 +21,9 @@ class AsciiDataRow
   def initialize(ascii_row)
     @fields = {}
     @ascii_row = ascii_row
-    self.class.fields_definitions.each_pair {|name, definition| @fields[name] = get_value_for_field_definition(definition) }
+    self.class.fields_definitions.each_pair do |name, definition| 
+      @fields[name] = get_value_for_field_definition(definition)
+    end
   end
 
   def fields
@@ -31,24 +33,20 @@ class AsciiDataRow
   private
   def get_value_for_field_definition(definition)
     text_value = @ascii_row.slice(definition.range).strip
-    return text_value if definition.type == :string
-    if definition.type == :int
-      return nil if text_value.empty?
-      return text_value.to_i
-    end
 
-    if definition.type == :float
-      return nil if text_value.empty?
-      return text_value.to_f
-    end
-
-    if definition.type == :date
-      return nil if text_value.empty?
-      return Date.strptime(text_value, definition.options[:format]).to_time.utc
-    end
-
-    if definition.type == :bool
-      return text_value == '1'
+    case definition.type
+    when :string
+      text_value
+    when :int
+      text_value.empty? ? nil : text_value.to_i
+    when :float
+      text_value.empty? ? nil : text_value.to_f
+    when :date
+      text_value.empty? ? nil : Time.strptime(text_value, definition.options[:format])
+    when :bool
+      text_value == '1'
+    else
+      nil
     end
   end
 end
