@@ -1,4 +1,5 @@
 require 'time'
+require 'iconv'
 
 class AsciiDataRow
   class << self
@@ -20,7 +21,7 @@ class AsciiDataRow
 
   def initialize(ascii_row)
     @fields = {}
-    @ascii_row = ascii_row
+    @ascii_row = remove_invalid_utf8_bytes(ascii_row)
     self.class.fields_definitions.each_pair do |name, definition| 
       @fields[name] = get_value_for_field_definition(definition)
     end
@@ -31,6 +32,11 @@ class AsciiDataRow
   end
 
   private
+  def remove_invalid_utf8_bytes(a_string)
+    ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
+    ic.iconv(a_string)
+  end
+
   def get_value_for_field_definition(definition)
     text_value = @ascii_row.slice(definition.range).strip
 
