@@ -38,7 +38,7 @@ class AsciiDataRow
   end
 
   def get_value_for_field_definition(definition)
-    text_value = @ascii_row.slice(definition.range.min, definition.range.max).strip
+    text_value = @ascii_row.slice(definition.range).strip
 
     case definition.type
     when :string
