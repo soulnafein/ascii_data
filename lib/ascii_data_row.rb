@@ -71,7 +71,7 @@ class AsciiDataRow
       Time.strptime(text_value, format)
     end
   rescue Exception => ex
-    raise "Error parsing date '#{text_value}' for format '#{format}'", ex
+    raise ex, "Error parsing date '#{text_value}' for format '#{format}'"
   end
 end
 
