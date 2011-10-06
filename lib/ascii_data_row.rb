@@ -33,12 +33,12 @@ class AsciiDataRow
 
   private
   def remove_invalid_utf8_bytes(a_string)
-    ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
-    ic.iconv(a_string)
+    @ic ||= Iconv.new('UTF-8//IGNORE', 'UTF-8')
+    @ic.iconv(a_string)
   end
 
   def get_value_for_field_definition(definition)
-    text_value = @ascii_row.slice(definition.range).strip
+    text_value = @ascii_row.slice(definition.range.min, definition.range.max).strip
 
     case definition.type
     when :string
@@ -48,11 +48,27 @@ class AsciiDataRow
     when :float
       text_value.empty? ? nil : text_value.to_f
     when :date
-      text_value.empty? ? nil : Time.strptime(text_value, definition.options[:format])
+      text_value.empty? ? nil : parse_date(text_value, definition.options[:format])
     when :bool
       text_value == '1'
     else
       nil
+    end
+  end
+
+  def parse_date(text_value, format)
+    if format == "%Y/%m/%d"
+      year = text_value[0..3].to_i
+      month = text_value[5..6].to_i
+      day = text_value[8..9].to_i
+      Time.utc(year, month, day)
+    elsif format == "%d/%m/%Y"
+      day = text_value[0..1].to_i
+      month = text_value[3..4].to_i
+      year = text_value[6..9].to_i
+      Time.utc(year, month, day)
+    else
+      Time.strptime(text_value, format)
     end
   end
 end
